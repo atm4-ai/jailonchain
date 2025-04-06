@@ -30,7 +30,7 @@ app.post("/api/report", (req, res) => {
   const { address, tags, description } = req.body;
   const data = loadData();
   if (data.find(item => item.address.toLowerCase() === address.toLowerCase())) {
-    return res.status(400).json({ error: "Address already reported." });
+    return res.status(400).json({ error: "地址已存在" });
   }
   data.push({ address, tags, description, likes: 0, tagVotes: {} });
   saveData(data);
@@ -38,5 +38,5 @@ app.post("/api/report", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
