@@ -108,7 +108,7 @@
           ${tag} 👍 ${(r.tagVotes && r.tagVotes[tag]) || 0}
         </span>`).join("")}
     </div>
-    <div class="total-likes">总点赞数：${Object.values(r.tagVotes || {{}}).reduce((a, b) => a + b, 0)}</div>
+    <div class="total-likes">总点赞数：${Object.values(r.tagVotes || {}).reduce((a, b) => a + b, 0)}</div>
     
           <div class="description">${r.description || "（无内容）"}</div>
         `;
