@@ -168,6 +168,16 @@
     console.error(err);
   });
 }
+    fetch("/api/reports")
+  .then(res => res.json())
+  .then(data => {
+    const match = data.find(r => r.address.toLowerCase() === keyword);
+    if (match) {
+      renderReports([match]);  // ← 就是这句
+    } else {
+      container.innerHTML = `<p>⚠️ 未发现该地址相关爆料</p>`;
+    }
+  })
 
   </script>
 </body>
