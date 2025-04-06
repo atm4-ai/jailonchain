@@ -1,6 +1,6 @@
 
 {
-  "name": "jail-onchain-bounty",
+  "name": "jail-onchain-fullstack",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {

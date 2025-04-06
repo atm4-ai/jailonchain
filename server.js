@@ -9,7 +9,7 @@ app.use(express.static("public"));
 app.use(express.json());
 
 const dbPath = path.join(__dirname, "data.json");
-const voteLogPath = path.join(__dirname, "vote_log.json");
+const ipLogPath = path.join(__dirname, "ip_data.json");
 
 function loadData() {
   try {
@@ -18,23 +18,31 @@ function loadData() {
     return [];
   }
 }
+
 function saveData(data) {
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 }
 
-function loadVotes() {
+function loadIPLog() {
   try {
-    return JSON.parse(fs.readFileSync(voteLogPath));
+    return JSON.parse(fs.readFileSync(ipLogPath));
   } catch {
     return {};
   }
 }
-function saveVotes(votes) {
-  fs.writeFileSync(voteLogPath, JSON.stringify(votes, null, 2));
+
+function saveIPLog(log) {
+  fs.writeFileSync(ipLogPath, JSON.stringify(log, null, 2));
 }
 
 app.get("/api/reports", (req, res) => {
   res.json(loadData());
+});
+
+app.get("/api/bounty", (req, res) => {
+  const data = loadData();
+  const top10 = data.sort((a, b) => b.likes - a.likes).slice(0, 10);
+  res.json(top10);
 });
 
 app.post("/api/report", (req, res) => {
@@ -48,36 +56,32 @@ app.post("/api/report", (req, res) => {
   res.json({ success: true });
 });
 
-app.post("/api/like/:address", (req, res) => {
-  const address = req.params.address.toLowerCase();
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-  const votes = loadVotes();
-  if (votes[ip] && votes[ip].includes(address)) {
-    return res.status(429).json({ error: "你已经点过赞了" });
+app.post("/api/like", (req, res) => {
+  const ip = req.ip;
+  const { address } = req.body;
+  const data = loadData();
+  const ipLog = loadIPLog();
+  const today = new Date().toISOString().split("T")[0];
+
+  if (!ipLog[today]) ipLog[today] = {};
+  if (!ipLog[today][ip]) ipLog[today][ip] = [];
+
+  if (ipLog[today][ip].includes(address)) {
+    return res.status(403).json({ error: "你今天已经赞过这个地址了" });
   }
 
-  const data = loadData();
-  const entry = data.find(e => e.address.toLowerCase() === address);
-  if (!entry) return res.status(404).json({ error: "找不到该地址" });
+  const report = data.find(item => item.address.toLowerCase() === address.toLowerCase());
+  if (!report) {
+    return res.status(404).json({ error: "地址不存在" });
+  }
 
-  entry.likes = (entry.likes || 0) + 1;
+  report.likes += 1;
+  ipLog[today][ip].push(address);
   saveData(data);
-
-  if (!votes[ip]) votes[ip] = [];
-  votes[ip].push(address);
-  saveVotes(votes);
-
+  saveIPLog(ipLog);
   res.json({ success: true });
 });
 
-app.get("/api/top10", (req, res) => {
-  const data = loadData();
-  const top = [...data]
-    .sort((a, b) => (b.likes || 0) - (a.likes || 0))
-    .slice(0, 10);
-  res.json(top);
-});
-
 app.listen(PORT, () => {
-  console.log(`JAIL.ONCHAIN Server running on port ${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
