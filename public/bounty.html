@@ -1,7 +1,3 @@
-# 生成修改后的 bounty.html 页面，优化排版：将地址与排名放入中间框内，避免和底部文字重叠
-bounty_fixed_path = "/mnt/data/bounty_poster_fixed.html"
-
-fixed_html = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -135,9 +131,3 @@ fixed_html = """
 </body>
 </html>
 """
-
-# 写入文件
-with open(bounty_fixed_path, "w", encoding="utf-8") as f:
-    f.write(fixed_html)
-
-bounty_fixed_path
