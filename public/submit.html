@@ -62,13 +62,15 @@
     </nav>
     <form onsubmit="return submitReport();">
       <input type="text" id="address" placeholder="钱包地址 (0x...)" required>
-      <div class="tags">
-        <label><input type="checkbox" value="庄家"> 庄家</label>
-        <label><input type="checkbox" value="砸盘狗"> 砸盘狗</label>
-        <label><input type="checkbox" value="偷跑"> 偷跑</label>
-        <label><input type="checkbox" value="洗盘精"> 洗盘精</label>
-        <label><input type="checkbox" value="RUG狗"> RUG狗</label>
-      </div>
+    <div class="tags">
+  <label><input type="checkbox" value="庄家"> 庄家</label>
+  <label><input type="checkbox" value="砸盘"> 砸盘</label>
+  <label><input type="checkbox" value="跑路"> 跑路</label>
+  <label><input type="checkbox" value="割韭菜"> 割韭菜</label>
+  <label><input type="checkbox" value="拉盘跑路"> 拉盘跑路</label>
+  <label><input type="checkbox" value="假空投"> 假空投</label>
+  <label><input type="checkbox" value="混币器"> 混币器</label>
+</div>
       <textarea id="description" rows="4" placeholder="爆料内容（可选）"></textarea>
       <button type="submit">🚨 提交爆料</button>
     </form>
