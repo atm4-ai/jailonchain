@@ -56,9 +56,10 @@ app.post("/api/report", (req, res) => {
   res.json({ success: true });
 });
 
+
 app.post("/api/like", (req, res) => {
   const ip = req.ip;
-  const { address } = req.body;
+  const { address, tag } = req.body;
   const data = loadData();
   const ipLog = loadIPLog();
   const today = new Date().toISOString().split("T")[0];
@@ -66,21 +67,24 @@ app.post("/api/like", (req, res) => {
   if (!ipLog[today]) ipLog[today] = {};
   if (!ipLog[today][ip]) ipLog[today][ip] = [];
 
-  if (ipLog[today][ip].includes(address)) {
-    return res.status(403).json({ error: "你今天已经赞过这个地址了" });
+  const key = `${address.toLowerCase()}-${tag}`;
+  if (ipLog[today][ip].includes(key)) {
+    return res.status(403).json({ error: "你今天已经点过这个标签了" });
   }
 
   const report = data.find(item => item.address.toLowerCase() === address.toLowerCase());
-  if (!report) {
-    return res.status(404).json({ error: "地址不存在" });
-  }
+  if (!report) return res.status(404).json({ error: "地址不存在" });
 
-  report.likes += 1;
-  ipLog[today][ip].push(address);
+  if (!report.tagVotes) report.tagVotes = {};
+  if (!report.tagVotes[tag]) report.tagVotes[tag] = 0;
+  report.tagVotes[tag] += 1;
+
+  ipLog[today][ip].push(key);
   saveData(data);
   saveIPLog(ipLog);
   res.json({ success: true });
 });
+);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
