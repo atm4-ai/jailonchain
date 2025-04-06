@@ -1,4 +1,5 @@
-
+# 将用户提供的悬赏榜 HTML 代码整合并加入生成的海报背景图，写入 bounty_poster.html
+html_combined = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -7,42 +8,6 @@
   <title>JAIL.ONCHAIN - 悬赏榜</title>
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
   <style>
-    .poster-wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
-    }
-    .poster {
-      background: url('bg.jpg') center center;
-      background-size: cover;
-      width: 240px;
-      height: 340px;
-      padding: 20px;
-      border: 4px solid #000;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Special Elite', serif;
-      background-blend-mode: multiply;
-      color: #2c1d00;
-      backdrop-filter: blur(2px);
-    }
-    .poster h2 {
-      font-size: 16px;
-      margin: 0;
-      text-align: center;
-      word-break: break-all;
-    }
-    .poster .bounty {
-      font-size: 22px;
-      color: darkred;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
     body {
       font-family: 'Special Elite', serif;
       margin: 0;
@@ -50,39 +15,75 @@
       background-size: cover;
       color: #000;
     }
+
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 40px 20px;
     }
+
     h1 {
       text-align: center;
       font-size: 48px;
       margin-bottom: 10px;
     }
+
+    .poster-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+
     .poster {
-      background: url('bg.jpg') no-repeat center center;
+      background: url('poster_bg.png') no-repeat center center;
       background-size: cover;
       width: 300px;
       height: 450px;
-      margin: 20px auto;
-      padding: 20px;
+      padding: 30px 20px;
       border: 5px solid #000;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      color: #2c1d00;
+      text-align: center;
     }
+
     .poster h2 {
-      font-size: 20px;
-      margin-top: 40px;
+      font-size: 18px;
+      margin: 0;
       word-break: break-all;
     }
+
     .poster .bounty {
-      font-size: 24px;
-      color: red;
-      margin-top: 20px;
+      font-size: 22px;
+      color: darkred;
+      margin-top: 10px;
+      font-weight: bold;
     }
+
     .back-btn {
       text-align: center;
       margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .poster {
+        width: 90%;
+        height: auto;
+        padding: 20px;
+        background-size: contain;
+      }
+
+      .poster h2 {
+        font-size: 16px;
+      }
+
+      .poster .bounty {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
@@ -94,30 +95,29 @@
   </div>
   <script>
    fetch('/api/reports')
-  .then(res => res.json())
-  .then(data => {
-    const posters = document.getElementById('posters');
+    .then(res => res.json())
+    .then(data => {
+      const posters = document.getElementById('posters');
 
-    // 排序 + 提取前10名
-    const sorted = data
-      .map(item => ({
-        ...item,
-        likes: Object.values(item.tagVotes || {}).reduce((a, b) => a + b, 0)
-      }))
-      .sort((a, b) => b.likes - a.likes)
-      .slice(0, 10);
+      const sorted = data
+        .map(item => ({
+          ...item,
+          likes: Object.values(item.tagVotes || {}).reduce((a, b) => a + b, 0)
+        }))
+        .sort((a, b) => b.likes - a.likes)
+        .slice(0, 10);
 
-    posters.innerHTML = '';
-    sorted.forEach((item, index) => {
-      const el = document.createElement('div');
-      el.className = 'poster';
-      el.innerHTML = `
-        <h2>#${index + 1}<br>${item.address}</h2>
-        <p class="bounty">${item.likes * 10000} Bounty</p>
-      `;
-      posters.appendChild(el);
+      posters.innerHTML = '';
+      sorted.forEach((item, index) => {
+        const el = document.createElement('div');
+        el.className = 'poster';
+        el.innerHTML = `
+          <h2>#${index + 1}<br>${item.address}</h2>
+          <p class="bounty">${item.likes * 10000} Bounty</p>
+        `;
+        posters.appendChild(el);
+      });
     });
-  });
   </script>
 </body>
 </html>
