@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -68,10 +69,20 @@
       background-color: #fff6d6;
       border: 2px solid #000;
       font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .tag:hover {
+      transform: scale(1.05);
+      background-color: #ffe0b3;
     }
     .description {
       font-size: 14px;
       margin-top: 10px;
+    }
+    .total-likes {
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -82,9 +93,12 @@
       <a href="index.html">🏠 监狱名单</a>
       <a href="submit.html">📝 爆料一个地址</a>
     </nav>
-    <div style="text-align:center;margin:20px;"><a href="/bounty.html"><button style="font-size:16px;padding:10px 20px;">查看悬赏榜</button></a></div>
-<div id="reportList">加载中...</div>
+    <div style="text-align:center;margin:20px;">
+      <a href="/bounty.html"><button style="font-size:16px;padding:10px 20px;">查看悬赏榜</button></a>
+    </div>
+    <div id="reportList">加载中...</div>
   </div>
+
   <script>
     function renderReports(data) {
       const container = document.getElementById("reportList");
@@ -96,22 +110,20 @@
       data.forEach(r => {
         const div = document.createElement("div");
         div.className = "report";
-        div.innerHTML = `
+        const tagHTML = (r.tags || []).map(tag => {
+          const count = (r.tagVotes && r.tagVotes[tag]) || 0;
+          return \`<span class="tag" onclick="likeTag('\${r.address}', '\${tag}', this)">\${tag} 👍 \${count}</span>\`;
+        }).join("");
+        const totalLikes = Object.values(r.tagVotes || {}).reduce((a, b) => a + b, 0);
+        div.innerHTML = \`
           <div class="address-line">
-            <div class="address">${r.address}</div>
-            <button class="copy-btn" onclick="copyAddress('${r.address}', this)">📋</button>
+            <div class="address">\${r.address}</div>
+            <button class="copy-btn" onclick="copyAddress('\${r.address}', this)">📋</button>
           </div>
-          
-    <div class="tags" id="tags-${r.address}">
-      ${(r.tags || []).map(tag => `
-        <span class="tag" data-tag="${tag}" onclick="likeTag('${r.address}', '${tag}', this)">
-          ${tag} 👍 ${(r.tagVotes && r.tagVotes[tag]) || 0}
-        </span>`).join("")}
-    </div>
-    <div class="total-likes">总点赞数：${Object.values(r.tagVotes || {}).reduce((a, b) => a + b, 0)}</div>
-    
-          <div class="description">${r.description || "（无内容）"}</div>
-        `;
+          <div class="tags">\${tagHTML}</div>
+          <div class="total-likes">总点赞数：\${totalLikes}</div>
+          <div class="description">\${r.description || "（无内容）"}</div>
+        \`;
         container.appendChild(div);
       });
     }
@@ -124,6 +136,29 @@
           btn.textContent = "📋";
           btn.classList.remove("copied");
         }, 2000);
+      });
+    }
+
+    function likeTag(address, tag, el) {
+      fetch("/api/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ address, tag })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          let count = parseInt(el.innerText.match(/\d+/g)?.pop() || "0");
+          el.innerText = \`\${tag} 👍 \${count + 1}\`;
+        } else {
+          alert(data.error || "点赞失败");
+        }
+      })
+      .catch(err => {
+        alert("网络错误或服务器异常");
+        console.error(err);
       });
     }
 
