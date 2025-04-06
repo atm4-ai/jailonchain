@@ -61,22 +61,18 @@
       background-color: #b8e986;
     }
     .tag {
-  display: inline-block;
-  margin-right: 10px;
-  margin-bottom: 6px;
-  padding: 4px 10px;
-  background-color: #fff6d6;
-  border: 2px solid #000;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.tag:hover {
-  transform: scale(1.05);
-  background-color: #ffe0b3;
-}
-
+      display: inline-block;
+      margin-right: 10px;
+      margin-bottom: 6px;
+      padding: 4px 10px;
+      background-color: #fff6d6;
+      border: 2px solid #000;
+      font-size: 14px;
+    }
+    .description {
+      font-size: 14px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -112,7 +108,7 @@
           ${tag} 👍 ${(r.tagVotes && r.tagVotes[tag]) || 0}
         </span>`).join("")}
     </div>
-    <div class="total-likes">总点赞数：${Object.values(r.tagVotes || {}).reduce((a, b) => a + b, 0)}</div>
+    <div class="total-likes">总点赞数：${Object.values(r.tagVotes || {{}}).reduce((a, b) => a + b, 0)}</div>
     
           <div class="description">${r.description || "（无内容）"}</div>
         `;
