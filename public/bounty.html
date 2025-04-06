@@ -1,5 +1,7 @@
-# 将用户提供的悬赏榜 HTML 代码整合并加入生成的海报背景图，写入 bounty_poster.html
-html_combined = """
+# 生成修改后的 bounty.html 页面，优化排版：将地址与排名放入中间框内，避免和底部文字重叠
+bounty_fixed_path = "/mnt/data/bounty_poster_fixed.html"
+
+fixed_html = """
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -40,28 +42,35 @@ html_combined = """
       background-size: cover;
       width: 300px;
       height: 450px;
-      padding: 30px 20px;
+      padding: 20px;
       border: 5px solid #000;
       box-shadow: 0 6px 12px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
       color: #2c1d00;
       text-align: center;
     }
 
-    .poster h2 {
+    .poster .poster-info {
+      margin-top: 100px;
+      margin-bottom: 30px;
+      font-size: 15px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .poster .poster-info .rank {
       font-size: 18px;
-      margin: 0;
-      word-break: break-all;
+      font-weight: bold;
     }
 
     .poster .bounty {
-      font-size: 22px;
+      font-size: 20px;
       color: darkred;
-      margin-top: 10px;
       font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .back-btn {
@@ -77,8 +86,9 @@ html_combined = """
         background-size: contain;
       }
 
-      .poster h2 {
-        font-size: 16px;
+      .poster .poster-info {
+        margin-top: 80px;
+        font-size: 14px;
       }
 
       .poster .bounty {
@@ -112,8 +122,11 @@ html_combined = """
         const el = document.createElement('div');
         el.className = 'poster';
         el.innerHTML = `
-          <h2>#${index + 1}<br>${item.address}</h2>
-          <p class="bounty">${item.likes * 10000} Bounty</p>
+          <div class="poster-info">
+            <div class="rank">#${index + 1}</div>
+            <div class="address">${item.address}</div>
+          </div>
+          <p class="bounty">$${item.likes * 10000}</p>
         `;
         posters.appendChild(el);
       });
@@ -121,3 +134,10 @@ html_combined = """
   </script>
 </body>
 </html>
+"""
+
+# 写入文件
+with open(bounty_fixed_path, "w", encoding="utf-8") as f:
+    f.write(fixed_html)
+
+bounty_fixed_path
