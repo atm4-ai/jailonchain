@@ -50,19 +50,54 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 20px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .tags label {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  font-size: 16px;
-  gap: 5px;
+  gap: 8px;
+  font-size: 15px;
+  padding: 6px 14px;
+  border: 2px solid #000;
   background-color: #fff6d6;
-  border: 1px solid #000;
-  padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+  box-shadow: 2px 2px 0 #000;
+  font-weight: bold;
+}
+
+.tags label:hover {
+  background-color: #ffe0b3;
+  transform: scale(1.05);
+}
+
+.tags input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #000;
+  background-color: #fff;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.tags input[type="checkbox"]:checked {
+  background-color: #b8e986;
+}
+
+.tags input[type="checkbox"]:checked::after {
+  content: '✔';
+  font-size: 12px;
+  color: #000;
+  position: absolute;
+  top: 0;
+  left: 2px;
 }
   </style>
 </head>
