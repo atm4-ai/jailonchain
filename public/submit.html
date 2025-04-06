@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>JAIL.ONCHAIN - 爆料上传</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JAIL.ONCHAIN - 提交爆料</title>
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
   <style>
     body {
@@ -37,51 +38,18 @@
     nav a:hover {
       border-bottom: 2px solid #000;
     }
-    .report {
-      background-color: rgba(255, 255, 210, 0.85);
-      padding: 20px;
-      margin-bottom: 30px;
-      border: 2px solid #000;
-    }
-    .address-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .copy-btn {
+    input, textarea, button {
+      width: 100%;
+      font-family: 'Special Elite', serif;
       font-size: 16px;
-      padding: 4px 10px;
-      cursor: pointer;
-      border: 1px solid #000;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 2px solid #000;
       background-color: #fff6d6;
     }
-    .copy-btn.copied {
-      background-color: #b8e986;
-    }
-    .tag {
-      display: inline-block;
+    .tags label {
       margin-right: 10px;
-      margin-bottom: 6px;
-      padding: 4px 10px;
-      background-color: #fff6d6;
-      border: 2px solid #000;
-      cursor: pointer;
-    }
-    .tag.voted {
-      background-color: #d4edaf;
-    }
-    .overall {
-      margin-top: 10px;
-      display: inline-block;
-      padding: 6px 14px;
-      border: 2px solid #000;
-      background-color: #fff6d6;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .overall.voted {
-      background-color: #d4edaf;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -92,42 +60,42 @@
       <a href="index.html">🏠 监狱名单</a>
       <a href="submit.html">📝 爆料一个地址</a>
     </nav>
-
-    <div class="report">
-      <div class="address-line">
-        <div class="address">0xABC123...BADF</div>
-        <button class="copy-btn" onclick="copyAddress('0xABC1234567890BADFABCD1234567890BADFABCD1', this)">📋</button>
-      </div>
+    <form onsubmit="return submitReport();">
+      <input type="text" id="address" placeholder="钱包地址 (0x...)" required>
       <div class="tags">
-        <span class="tag" onclick="voteTag(this)">庄家 👍 <span class="count">12</span></span>
-        <span class="tag" onclick="voteTag(this)">洗盘精 👍 <span class="count">7</span></span>
+        <label><input type="checkbox" value="庄家"> 庄家</label>
+        <label><input type="checkbox" value="砸盘狗"> 砸盘狗</label>
+        <label><input type="checkbox" value="偷跑"> 偷跑</label>
+        <label><input type="checkbox" value="洗盘精"> 洗盘精</label>
+        <label><input type="checkbox" value="RUG狗"> RUG狗</label>
       </div>
-      <div class="content">偷跑狗币，仅用5秒砸盘80%。疑似团队老鼠仓。</div>
-      <div class="overall" onclick="voteOverall(this)">该地址整体可信 👍 <span class="count">33</span></div>
-    </div>
+      <textarea id="description" rows="4" placeholder="爆料内容（可选）"></textarea>
+      <button type="submit">🚨 提交爆料</button>
+    </form>
   </div>
   <script>
-    function voteTag(el) {
-      if (el.classList.contains('voted')) return;
-      const countSpan = el.querySelector('.count');
-      countSpan.textContent = parseInt(countSpan.textContent) + 1;
-      el.classList.add('voted');
-    }
-    function voteOverall(el) {
-      if (el.classList.contains('voted')) return;
-      const countSpan = el.querySelector('.count');
-      countSpan.textContent = parseInt(countSpan.textContent) + 1;
-      el.classList.add('voted');
-    }
-    function copyAddress(address, el) {
-      navigator.clipboard.writeText(address).then(() => {
-        el.textContent = "✔";
-        el.classList.add("copied");
-        setTimeout(() => {
-          el.textContent = "📋";
-          el.classList.remove("copied");
-        }, 2000);
-      });
+    function submitReport() {
+      const addr = document.getElementById("address").value.trim();
+      if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+        alert("❌ 地址格式非法");
+        return false;
+      }
+      const tags = Array.from(document.querySelectorAll(".tags input:checked")).map(i => i.value);
+      const description = document.getElementById("description").value.trim();
+      fetch("/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: addr, tags, description })
+      })
+        .then(res => {
+          if (!res.ok) return res.json().then(data => { throw new Error(data.error); });
+          alert("✅ 提交成功！");
+          document.querySelector("form").reset();
+        })
+        .catch(err => {
+          alert("❌ " + err.message);
+        });
+      return false;
     }
   </script>
 </body>

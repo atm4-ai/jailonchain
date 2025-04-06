@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JAIL.ONCHAIN - 监狱名单</title>
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
   <style>
@@ -50,8 +51,8 @@
       margin-bottom: 10px;
     }
     .copy-btn {
-      font-size: 16px;
-      padding: 4px 10px;
+      font-size: 14px;
+      padding: 2px 8px;
       cursor: pointer;
       border: 1px solid #000;
       background-color: #fff6d6;
@@ -66,22 +67,11 @@
       padding: 4px 10px;
       background-color: #fff6d6;
       border: 2px solid #000;
-      cursor: pointer;
+      font-size: 14px;
     }
-    .tag.voted {
-      background-color: #d4edaf;
-    }
-    .overall {
+    .description {
+      font-size: 14px;
       margin-top: 10px;
-      display: inline-block;
-      padding: 6px 14px;
-      border: 2px solid #000;
-      background-color: #fff6d6;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .overall.voted {
-      background-color: #d4edaf;
     }
   </style>
 </head>
@@ -92,43 +82,50 @@
       <a href="index.html">🏠 监狱名单</a>
       <a href="submit.html">📝 爆料一个地址</a>
     </nav>
-
-    <div class="report">
-      <div class="address-line">
-        <div class="address">0xABC123...BADF</div>
-        <button class="copy-btn" onclick="copyAddress('0xABC1234567890BADFABCD1234567890BADFABCD1', this)">📋</button>
-      </div>
-      <div class="tags">
-        <span class="tag" onclick="voteTag(this)">庄家 👍 <span class="count">12</span></span>
-        <span class="tag" onclick="voteTag(this)">洗盘精 👍 <span class="count">7</span></span>
-      </div>
-      <div class="content">偷跑狗币，仅用5秒砸盘80%。疑似团队老鼠仓。</div>
-      <div class="overall" onclick="voteOverall(this)">该地址整体可信 👍 <span class="count">33</span></div>
-    </div>
+    <div id="reportList">加载中...</div>
   </div>
   <script>
-    function voteTag(el) {
-      if (el.classList.contains('voted')) return;
-      const countSpan = el.querySelector('.count');
-      countSpan.textContent = parseInt(countSpan.textContent) + 1;
-      el.classList.add('voted');
+    function renderReports(data) {
+      const container = document.getElementById("reportList");
+      if (data.length === 0) {
+        container.innerHTML = "<p>暂无爆料地址。</p>";
+        return;
+      }
+      container.innerHTML = "";
+      data.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "report";
+        div.innerHTML = `
+          <div class="address-line">
+            <div class="address">${r.address}</div>
+            <button class="copy-btn" onclick="copyAddress('${r.address}', this)">📋</button>
+          </div>
+          <div class="tags">
+            ${(r.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("")}
+          </div>
+          <div class="description">${r.description || "（无内容）"}</div>
+        `;
+        container.appendChild(div);
+      });
     }
-    function voteOverall(el) {
-      if (el.classList.contains('voted')) return;
-      const countSpan = el.querySelector('.count');
-      countSpan.textContent = parseInt(countSpan.textContent) + 1;
-      el.classList.add('voted');
-    }
-    function copyAddress(address, el) {
+
+    function copyAddress(address, btn) {
       navigator.clipboard.writeText(address).then(() => {
-        el.textContent = "✔";
-        el.classList.add("copied");
+        btn.textContent = "✔";
+        btn.classList.add("copied");
         setTimeout(() => {
-          el.textContent = "📋";
-          el.classList.remove("copied");
+          btn.textContent = "📋";
+          btn.classList.remove("copied");
         }, 2000);
       });
     }
+
+    fetch("/api/reports")
+      .then(res => res.json())
+      .then(renderReports)
+      .catch(() => {
+        document.getElementById("reportList").innerHTML = "<p>❌ 加载失败</p>";
+      });
   </script>
 </body>
 </html>
