@@ -93,20 +93,31 @@
     <div class="poster-wrapper" id="posters"></div>
   </div>
   <script>
-    fetch('/api/bounty')
-      .then(res => res.json())
-      .then(data => {
-        const posters = document.getElementById('posters');
-        data.forEach((item, index) => {
-          const el = document.createElement('div');
-          el.className = 'poster';
-          el.innerHTML = `
-            <h2>#${index + 1}<br>${item.address}</h2>
-            <p class="bounty">${item.likes * 10000} Bounty</p>
-          `;
-          posters.appendChild(el);
-        });
-      });
+   fetch('/api/reports')
+  .then(res => res.json())
+  .then(data => {
+    const posters = document.getElementById('posters');
+
+    // 排序 + 提取前10名
+    const sorted = data
+      .map(item => ({
+        ...item,
+        likes: Object.values(item.tagVotes || {}).reduce((a, b) => a + b, 0)
+      }))
+      .sort((a, b) => b.likes - a.likes)
+      .slice(0, 10);
+
+    posters.innerHTML = '';
+    sorted.forEach((item, index) => {
+      const el = document.createElement('div');
+      el.className = 'poster';
+      el.innerHTML = `
+        <h2>#${index + 1}<br>${item.address}</h2>
+        <p class="bounty">${item.likes * 10000} Bounty</p>
+      `;
+      posters.appendChild(el);
+    });
+  });
   </script>
 </body>
 </html>
