@@ -101,9 +101,15 @@
             <div class="address">${r.address}</div>
             <button class="copy-btn" onclick="copyAddress('${r.address}', this)">📋</button>
           </div>
-          <div class="tags">
-            ${(r.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("")}
-          </div>
+          
+    <div class="tags" id="tags-${r.address}">
+      ${(r.tags || []).map(tag => `
+        <span class="tag" data-tag="${tag}" onclick="likeTag('${r.address}', '${tag}', this)">
+          ${tag} 👍 ${(r.tagVotes && r.tagVotes[tag]) || 0}
+        </span>`).join("")}
+    </div>
+    <div class="total-likes">总点赞数：${Object.values(r.tagVotes || {{}}).reduce((a, b) => a + b, 0)}</div>
+    
           <div class="description">${r.description || "（无内容）"}</div>
         `;
         container.appendChild(div);
