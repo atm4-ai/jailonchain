@@ -133,6 +133,30 @@
       .catch(() => {
         document.getElementById("reportList").innerHTML = "<p>❌ 加载失败</p>";
       });
+    
+    function likeTag(address, tag, el) {
+  fetch("/api/like", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ address, tag })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      let count = parseInt(el.innerText.match(/\d+/g)?.pop() || "0");
+      el.innerText = `${tag} 👍 ${count + 1}`;
+    } else {
+      alert(data.error || "点赞失败");
+    }
+  })
+  .catch(err => {
+    alert("网络错误或服务器异常");
+    console.error(err);
+  });
+}
+
   </script>
 </body>
 </html>
