@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>悬赏榜</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background: #f2e9dc;
+      padding: 20px;
+      text-align: center;
+    }
+    .poster {
+      background: url('bg.jpg') no-repeat center center;
+      background-size: cover;
+      width: 300px;
+      height: 450px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 5px solid #000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .poster h2 {
+      font-size: 20px;
+      margin-top: 40px;
+    }
+    .poster .bounty {
+      font-size: 24px;
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>悬赏榜（Top 10）</h1>
+  <div><a href="/index.html"><button>返回首页</button></a></div>
+  <div id="posters"></div>
+  <script>
+    fetch('/api/bounty')
+      .then(res => res.json())
+      .then(data => {
+        const posters = document.getElementById('posters');
+        data.forEach((item, index) => {
+          const el = document.createElement('div');
+          el.className = 'poster';
+          el.innerHTML = `
+            <h2>#${index + 1}<br>${item.address}</h2>
+            <p class="bounty">${item.likes * 10000} Bounty</p>
+          `;
+          posters.appendChild(el);
+        });
+      });
+  </script>
+</body>
+</html>

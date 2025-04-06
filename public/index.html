@@ -1,1 +1,132 @@
-<!DOCTYPE html><html><body>Loading...</body></html>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JAIL.ONCHAIN - 监狱名单</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Special Elite', serif;
+      margin: 0;
+      background: url('bg.jpg') repeat center center fixed;
+      background-size: cover;
+      color: #000;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    nav a {
+      margin: 0 20px;
+      font-weight: bold;
+      font-size: 16px;
+      text-decoration: none;
+      color: #000;
+      border-bottom: 2px solid transparent;
+    }
+    nav a:hover {
+      border-bottom: 2px solid #000;
+    }
+    .report {
+      background-color: rgba(255, 255, 210, 0.85);
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 2px solid #000;
+    }
+    .address-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .copy-btn {
+      font-size: 14px;
+      padding: 2px 8px;
+      cursor: pointer;
+      border: 1px solid #000;
+      background-color: #fff6d6;
+    }
+    .copy-btn.copied {
+      background-color: #b8e986;
+    }
+    .tag {
+      display: inline-block;
+      margin-right: 10px;
+      margin-bottom: 6px;
+      padding: 4px 10px;
+      background-color: #fff6d6;
+      border: 2px solid #000;
+      font-size: 14px;
+    }
+    .description {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<a href="/bounty.html"><button>查看悬赏榜</button></a><br><br>
+  <div class="container">
+    <h1>JAIL.ONCHAIN</h1>
+    <nav>
+      <a href="index.html">🏠 监狱名单</a>
+      <a href="submit.html">📝 爆料一个地址</a>
+    </nav>
+    <div id="reportList">加载中...</div>
+  </div>
+  <script>
+    function renderReports(data) {
+      const container = document.getElementById("reportList");
+      if (data.length === 0) {
+        container.innerHTML = "<p>暂无爆料地址。</p>";
+        return;
+      }
+      container.innerHTML = "";
+      data.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "report";
+        div.innerHTML = `
+          <div class="address-line">
+            <div class="address">${r.address}</div>
+            <button class="copy-btn" onclick="copyAddress('${r.address}', this)">📋</button>
+          </div>
+          <div class="tags">
+            ${(r.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("")}
+          </div>
+          <div class="description">${r.description || "（无内容）"}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function copyAddress(address, btn) {
+      navigator.clipboard.writeText(address).then(() => {
+        btn.textContent = "✔";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "📋";
+          btn.classList.remove("copied");
+        }, 2000);
+      });
+    }
+
+    fetch("/api/reports")
+      .then(res => res.json())
+      .then(renderReports)
+      .catch(() => {
+        document.getElementById("reportList").innerHTML = "<p>❌ 加载失败</p>";
+      });
+  </script>
+</body>
+</html>
